@@ -1,0 +1,76 @@
+# RELEASE - Location of external support modules
+#
+# IF YOU CHANGE ANY PATHS in this file or make API changes to
+# any modules it refers to, you should do a "make rebuild" in
+# this application's top level directory.
+#
+# The EPICS build process does not check dependencies against
+# any files from outside the application, so it is safest to
+# rebuild it completely if any modules it depends on change.
+#
+# Host- or target-specific settings can be given in files named
+#  RELEASE.$(EPICS_HOST_ARCH).Common
+#  RELEASE.Common.$(T_A)
+#  RELEASE.$(EPICS_HOST_ARCH).$(T_A)
+#
+# This file is parsed by both GNUmake and an EPICS Perl script,
+# so it may ONLY contain definititions of paths to other support
+# modules, variable definitions that are used in module paths,
+# and include statements that pull in other RELEASE files.
+# Variables may be used before their values have been set.
+# Build variables that are NOT used in paths should be set in
+# the CONFIG_SITE file.
+
+# Variables and paths to dependent modules:
+#MODULES = /path/to/modules
+#MYMODULE = $(MODULES)/my-module
+
+# If using the sequencer, point SNCSEQ at its top directory:
+#SNCSEQ = $(MODULES)/seq-ver
+
+# EPICS_BASE should appear last so earlier modules can override stuff:
+EPICS_BASE = /home/epics/EPICS/epics-base
+
+#
+# can not use ${HOME} due to auto generation on
+# some submodules
+SUPPORT=/home/epics/EPICS/epics-support
+
+#  IPAC is only necessary if support for Greensprings IP488 is required
+#  IPAC release V2-7 or later is required.
+IPAC=$(SUPPORT)/ipac
+
+# If CALC was built with SSCAN support then SSCAN must be defined for testEpicsApp
+SSCAN=$(SUPPORT)/sscan
+
+# SEQ is required for testIPServer
+SNCSEQ=$(SUPPORT)/seq-2.2.8
+
+## For sCalcout support in asynOctet - applications include asynCalc.dbd
+CALC=$(SUPPORT)/calc
+
+AUTOSAVE=$(SUPPORT)/autosave
+BUSY=$(SUPPORT)/busy
+IP=$(SUPPORT)/ip
+
+ASYN=$(SUPPORT)/asyn
+MOTOR=$(SUPPORT)/motor
+
+MODBUS=$(SUPPORT)/modbus
+
+DEVLIB=$(SUPPORT)/devlib2
+
+STREAM=$(SUPPORT)/StreamDevice
+# actively empty the PCRE variable since it otherwise tries to include the epics module PCRE instead of the system one
+PCRE=
+PCRE_LIB=/usr/lib/x86_64-linux-gnu/
+PCRE_INCLUDE=/usr/include/
+
+RECCASTER=$(SUPPORT)/recsync/client
+
+#  EPICS_BASE 3.14.6 or later is required
+# These lines allow developers to override these RELEASE settings
+# without having to modify this file directly.
+-include $(TOP)/../RELEASE.local
+-include $(TOP)/../RELEASE.$(EPICS_HOST_ARCH).local
+-include $(TOP)/configure/RELEASE.local

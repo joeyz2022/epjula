@@ -1,0 +1,4 @@
+file "db/julaboCP450.db"{
+  pattern{    IOC,   NAME,    PORT,      TYPE}
+	 {"$(P):$(R)", "$(N)",  "$(I)",  "$(T)"}
+}

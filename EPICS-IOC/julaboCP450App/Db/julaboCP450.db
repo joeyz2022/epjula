@@ -1,0 +1,353 @@
+############################################
+# ###                                  ### #
+# ### EPICS Database for               ### #
+# ### Julabo CP450                     ### #
+# ###                                  ### #
+# ### author: F.Feldbauer              ### #
+# ###                                  ### #
+# ### Ref 2.0; 2011-12-19              ### #
+# ###                                  ### #
+# ### macros: subsys  $(IOC) subsystem ### #
+# ###         type    Cooling type     ### #
+# ###         BUS     Asyn Interface   ### #
+############################################
+
+############################
+# ### in/ out commands ### #
+############################
+
+#record (stringin, "$(IOC):$(NAME):$(TYPE):Status") {
+#  field (DTYP, "stream")
+#  field (INP,  "@julaboCP450.proto getStatus($(IOC):$(NAME):$(TYPE)) $(PORT)")
+#  field (SCAN, "10 second")
+#  #field (FLNK, "$(IOC):$(NAME):$(TYPE):PVVAL")
+#}
+
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:pv") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getPVVal $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:perc") {
+  field (DTYP, "stream")
+  field (EGU,  "%")
+  #field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getPVValPerc $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:secure") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getPVTempSecure $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:overtemp") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getPVHightemp $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+###########  Sollwerttemperatur
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:sp") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getSPTemp $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Temp:sp:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setSPTemp $(PORT)")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Temp:sp")
+}
+########### Uebertemperatur
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:ot") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getSPMaxtemp $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Temp:ot:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setSPMaxTemp $(PORT)")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Temp:ot")
+}
+############ Untertemperatur
+record (ai, "$(IOC):$(NAME):$(TYPE):Temp:ut") {
+  field (DTYP, "stream")
+  field (EGU,  "degC")
+  field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getSPMintemp $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Temp:ut:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setSPMinTemp $(PORT)")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Temp:ut")
+}
+
+####### Pumplevel ---hier besser Auwahl (1-5) mbbi/mbbo
+record (ai, "$(IOC):$(NAME):$(TYPE):Pump:level") {
+  field (DTYP, "stream")
+  #field (EGU,  "")
+  #field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getSPPumplevel $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Pump:level:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setSPPumplevel $(PORT)")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Pump:level")
+}
+
+##### Pumppower
+record (ai, "$(IOC):$(NAME):$(TYPE):Pump:power") {
+  field (DTYP, "stream")
+  field (EGU,  "%")
+  #field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getSPPumppower $(PORT)")
+  field (ADEL, "0")
+  field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Pump:power:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setSPPumppower $(PORT)")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Pump:power")
+}
+
+##### Mode
+record (ai, "$(IOC):$(NAME):$(TYPE):Mode") {
+  field (DTYP, "stream")
+  #field (EGU,  "")
+  #field (PREC, "2")
+  field (INP,  "@julaboCP450.proto getMode $(PORT)")
+  #field (ADEL, "0")
+  #field (MDEL, "0")
+  field (SCAN, "1 second")
+}
+
+record (ao, "$(IOC):$(NAME):$(TYPE):Mode:SP") {
+  field (DTYP, "stream")
+  field (OUT,  "@julaboCP450.proto setMode $(PORT)")
+  #field (ZNAM, "Stop")
+  #field (ONAM, "Start")
+  field (FLNK, "$(IOC):$(NAME):$(TYPE):Mode")
+}
+
+#####
+
+
+
+
+###############
+#record (stringin, "$(IOC):$(NAME):$(TYPE):Status") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getStatus($(IOC):$(NAME):$(TYPE)) $(PORT)")
+#  field (SCAN, "10 second")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):BathTEMP:Tmom")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):StatusNumber") {
+#  # Alarm Parameters
+#  field (LOLO, "-1")  field (LLSV, "MAJOR")
+#  field (ADEL, "0")
+#  field (MDEL, "0")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):BathTEMP:Tmom") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getBathTemp $(PORT)")
+#  field (EGU,  "degC")
+#  field (PREC, "2")
+#  field (HIHI, "-10")  field (HHSV, "MAJOR")
+#  field (LOLO, "-50")  field (LLSV, "MAJOR")
+#  field (HIGH, "-20")  field (HSV,  "MINOR")
+#  field (LOW,  "-40")  field (LSV,  "MINOR")
+#  field (ADEL, "0")
+#  field (MDEL, "0")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):HeatPower")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):HeatPower") {
+#  field (DTYP, "stream")
+#  field (EGU,  "p.c.")
+#  field (PREC, "0")
+#  field (INP,  "@Julabo.proto getHeatPower $(PORT)")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):PumpStage")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):PT100:Tmom") {
+#  field (DTYP, "stream")
+#  field (EGU,  "degC")
+#  field (PREC, "2")
+#  field (INP,  "@Julabo.proto getPT100Temp $(PORT)")
+#  field (ADEL, "0")
+#  field (MDEL, "0")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):Tset") {
+#  field (DTYP, "stream")
+#  field (EGU,  "degC")
+#  field (PREC, "2")
+#  field (INP,  "@Julabo.proto getSetVal1 $(PORT)")
+#  field (PINI, "YES")
+#}
+#
+#record (bi, "$(IOC):$(NAME):$(TYPE):Unit") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getUnit $(PORT)")
+#  field (ZNAM, "degC")
+#  field (ONAM, "degF")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):PumpStage") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getPumpStage $(PORT)")
+#  field (ADEL, "0")
+#  field (MDEL, "0")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):Tset")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):ParXpInt") {
+#  field (DTYP, "stream")
+#  field (PINI, "YES")
+#  field (INP,  "@Julabo.proto getParXpInt $(PORT)")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):ParTnInt") {
+#  field (DTYP, "stream")
+#  field (PINI, "YES")
+#  field (INP,  "@Julabo.proto getParTnInt $(PORT)")
+#}
+#
+#record (ai, "$(IOC):$(NAME):$(TYPE):ParTvInt") {
+#  field (DTYP, "stream")
+#  field (PINI, "YES")
+#  field (INP,  "@Julabo.proto getParTvInt $(PORT)")
+#}
+#
+#record (mbbi, "$(IOC):$(NAME):$(TYPE):SelftuneType") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getSelftuneType $(PORT)")
+#  field (ZRST, "off")
+#  field (ONST, "once")
+#  field (TWST, "always")
+#  field (PINI, "YES")
+#}
+#
+#record (bi, "$(IOC):$(NAME):$(TYPE):TempControl") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getTempControl $(PORT)")
+#  field (ZNAM, "Internal")
+#  field (ONAM, "External")
+#  field (PINI, "YES")
+#}
+#
+#record (bi, "$(IOC):$(NAME):$(TYPE):CircCon") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getCircCon $(PORT)")
+#  field (ZNAM, "stop")
+#  field (ONAM, "start")
+#  field (PINI, "YES")
+#}
+#
+#record (bi, "$(IOC):$(NAME):$(TYPE):ControlDyn") {
+#  field (DTYP, "stream")
+#  field (INP,  "@Julabo.proto getControlDyn $(PORT)")
+#  field (ZNAM, "aperiodic")
+#  field (ONAM, "standard")
+#  field (PINI, "YES")
+#}
+#
+#########################
+## ### out commands ### #
+#########################
+#
+#record (mbbo, "$(IOC):$(NAME):$(TYPE):setSelftuneType") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setSelftuneType $(PORT)")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):SelftuneType")
+#  field (ZRST, "off")
+#  field (ONST, "once")
+#  field (TWST, "always")
+#}
+#
+#record (bo, "$(IOC):$(NAME):$(TYPE):setTempControl") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setTempControl $(PORT)")
+#  field (ZNAM, "int")
+#  field (ONAM, "ext")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):TempControl")
+#}
+#
+#record (bo, "$(IOC):$(NAME):$(TYPE):setCircCon") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setCircCon $(PORT)")
+#  field (ONAM, "Start")
+#  field (ZNAM, "Stop")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):CircCon")
+#}
+#
+#record (ao, "$(IOC):$(NAME):$(TYPE):setTset") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setSetVal1 $(PORT)")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):Tset")
+#}
+#
+#record (ao, "$(IOC):$(NAME):$(TYPE):setPumpStage") {
+#  field (DTYP, "stream")
+#  field (VAL,  "4")
+#  field (OUT,  "@Julabo.proto setPumpStage $(PORT)")
+#  field (FLNK, "$(IOC):$(NAME):$(TYPE):PumpStage")
+#  field (DRVH, "4")
+#  field (DRVL, "0")
+#  field (PREC, "0")
+#  field (EGU,  "a.u.")
+#}
+#
+#record (ao, "$(IOC):$(NAME):$(TYPE):setParXpInt") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setParXpInt $(PORT)")
+#}
+#
+#record (ao, "$(IOC):$(NAME):$(TYPE):setParTnInt") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setParTnInt $(PORT)")
+#}
+#
+#record (ao, "$(IOC):$(NAME):$(TYPE):setParTvInt") {
+#  field (DTYP, "stream")
+#  field (OUT,  "@Julabo.proto setParTvInt $(PORT)")
+#}
+#

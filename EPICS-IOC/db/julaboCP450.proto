@@ -1,0 +1,111 @@
+#################################################
+# ###                                       ### #
+# ### StreamDevice Protocol for             ### #
+# ### Julabo CP450                          ### #
+# ###                                       ### #
+# ### author: F.Feldbauer / J.Fabian        ### #
+# ###                                       ### #
+# ### Ref 1.0; 2011-05-19                   ### #
+#################################################
+
+###################
+# ### Globals ### #
+###################
+OutTerminator = CR;
+InTerminator  = CR LF;
+LockTimeout   = 5000;
+ReplyTimeout  = 1000;
+ReadTimeout   = 1000;
+WriteTimeout  = 1000;
+ExtraInput    = Ignore;
+
+##############################
+# ### Exception Handlers ### #
+##############################
+
+#####################
+# ### Protocols ### #
+#####################
+
+### Get VAlues ###
+
+#getStatus{
+#	out "status";
+#	in  "%(\$1:StatusNumber.VAL)i %39c";
+#	}
+
+getPVVal{
+	out "in_pv_00";
+	in  "%f";
+	}
+
+getPVValPerc{
+	out "in_pv_01";
+	in  "%i";
+	}
+
+getPVTempSecure{
+	out "in_pv_03";
+	in  "%f";
+	}
+getPVHightemp{
+	out "in_pv_04";
+	in  "%f";
+	}
+	
+getSPTemp{
+	out "in_sp_00";
+	in  "%f";
+	}
+	
+getSPMaxtemp{
+	out "in_sp_03";
+	in  "%f";
+	}
+	
+getSPMintemp{
+	out "in_sp_04";
+	in  "%f";
+	}
+	
+getSPPumplevel{
+	out "in_sp_07";
+	in  "%f";
+	}
+	
+getSPPumppower{
+	out "in_sp_27";
+	in  "%f";
+	}
+	
+getMode{
+	out "in_mode_05";
+	in  "%i";
+	}
+	
+### set values ###
+
+setSPTemp{
+		out "out_sp_00 %3.2f";
+		}
+
+setSPMaxtemp{
+		out "out_sp_03 %3.2f";
+		}	
+
+setSPMinTemp{
+		out "out_sp_04 %3.2f";
+		}
+
+setSPPumplevel{
+		out "out_sp_07 %i";
+		}
+
+setSPPumppower{
+		out "out_sp_27 %i";
+		}
+
+setMode{
+		out "out_mode_05 %i";
+		}
+

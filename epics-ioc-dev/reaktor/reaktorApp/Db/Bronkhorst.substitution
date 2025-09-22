@@ -1,0 +1,4 @@
+file "db/Bronkhorst.db"{
+  pattern{    IOC,   NAME,    PORT,      SCAN1,      SCAN2,   UNIT,   NODE}
+	 {"$(P):$(R)", "$(N)",  "$(I)",  "Passive", "1 second", "$(U)", "$(T)"}
+}

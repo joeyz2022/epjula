@@ -1,0 +1,119 @@
+file db/aiFloat64.template
+
+{ pattern { X,               Y,         PORT,     OFFSET,   DATA_TYPE,     PREC,      SCAN ,HIHI,HIGH,LOW,LOLO, HHSV,HSV,LSV,LLSV,HYST,AFTC,LALM}
+#Loop1.Main
+{"$(P):$(R):", "$(N):iPV"     ,       "$(I)",      1	,   INT16    ,        0, "1 second",6500,6400, -1,  -2,"MAJOR", ,   ,    ,    ,   1,    }#Loop.1.Main.PV (readOnly)
+{"$(P):$(R):", "$(N):iTSP"	  ,       "$(I)",      2	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.Main.TargetSP
+{"$(P):$(R):", "$(N):iWSP"	  ,       "$(I)",      5	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.Main.WSP
+{"$(P):$(R):", "$(N):iWPER"   ,       "$(I)",      4	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.Main.WPERCENT (readonly)
+# Loop1.SP
+{"$(P):$(R):", "$(N):irnGH"	  ,       "$(I)",      12	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.RangeHigh
+{"$(P):$(R):", "$(N):irnGL"	  ,       "$(I)",      11	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.RangeLow
+{"$(P):$(R):", "$(N):irnGL"	  ,       "$(I)",      15	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.ActiveSP
+{"$(P):$(R):", "$(N):iSP_1"	  ,       "$(I)",      24	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.SP1
+{"$(P):$(R):", "$(N):iSP_2"	  ,       "$(I)",      25	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.SP2
+{"$(P):$(R):", "$(N):iSP_H"	  ,       "$(I)",      111	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.SPHighLimit
+{"$(P):$(R):", "$(N):iSP_L"	  ,       "$(I)",      112	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.SPLow Limit
+{"$(P):$(R):", "$(N):iSPrr"	  ,       "$(I)",      35	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.Rate
+{"$(P):$(R):", "$(N):iSPRRDis",       "$(I)",      78	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.SP.RateDisable 0 No; 1 Yes
+# Loop1.Tune
+{"$(P):$(R):", "$(N):itune"	  ,       "$(I)",      270	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.Tune.AutotuneEnable (0 Off; 1 On)
+# Loop1.PID
+{"$(P):$(R):", "$(N):iPb"	  ,       "$(I)",      6  	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.ProportionalBand
+{"$(P):$(R):", "$(N):iti"	  ,       "$(I)",      8  	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.IntegralTime 
+{"$(P):$(R):", "$(N):itd"	  ,       "$(I)",      9  	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.DerivativeTime 
+{"$(P):$(R):", "$(N):ires"	  ,       "$(I)",      28 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.ManualReset
+{"$(P):$(R):", "$(N):iHcb"	  ,       "$(I)",      18 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.CutbackHigh 
+{"$(P):$(R):", "$(N):iLcb"	  ,       "$(I)",      17 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.CutbackLow 
+{"$(P):$(R):", "$(N):iTime"	  ,       "$(I)",      83 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.PID.Control.loop.monitoring.time
+# Loop1.OP
+{"$(P):$(R):", "$(N):iOPHi"   ,       "$(I)",      30	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.OP.OutputHighLimit
+{"$(P):$(R):", "$(N):iOPLo"   ,       "$(I)",      31	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.OP.OutputLow Limit
+# Configuration Menue/Mode: Attention! Restart after switching back to normal mode!        ,    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,      		 	       
+{"$(P):$(R):", "$(N):iIM"	  ,       "$(I)",      199	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Access.IM(0/1)???
+#Instrument
+{"$(P):$(R):", "$(N):iunit"	  ,       "$(I)",      516	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Instrument.Display.Units (0 Deg C; 1 Deg F; 2 Deg K)
+#Loop1.Setup                                                                               ,    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    
+{"$(P):$(R):", "$(N):iCtrl"	  ,       "$(I)",      512	,   INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }#Loop.1.Setup.CH1ControlType(0 Off; 1 On/Off; 2 PID; 3 VPU; 4 VPB)
+#ALARM.1
+{"$(P):$(R):", "$(N):iAL1Th"  ,       "$(I)",      13 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Hy"  ,       "$(I)",      47 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1De"  ,       "$(I)",      221 	,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Ty"  ,       "$(I)",      10240,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Thr" ,       "$(I)",      10241,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Hys" ,       "$(I)",      10242,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Ref" ,       "$(I)",      10243,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Lat" ,       "$(I)",      10244,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Pri" ,       "$(I)",      10245,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Blo" ,       "$(I)",      10246,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Inh" ,       "$(I)",      10247,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Del" ,       "$(I)",      10248,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Out" ,       "$(I)",      10249,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+{"$(P):$(R):", "$(N):iAL1Ack" ,       "$(I)",      10250,	INT16    ,        0, "1 second",    ,    ,   ,    ,     ,   ,   ,    ,    ,    ,    }
+}
+
+
+
+file db/aoFloat64.template
+
+{ pattern {X,           Y,            PORT,       OFFSET,DATA_TYPE, PREC,			EGU,  DESC,	  HOPR, LOPR}
+#Loop1.Main                          
+#{"$(P):$(R):", "$(N):oPV"     ,       "$(O)",      1	,   INT16,     0,     "0.1degC",	"",   6000,  200}#Loop.1.Main.PV (readOnly)
+{"$(P):$(R):", "$(N):oTSP"	  ,       "$(O)",      2	,   INT16,     0,     "0.1degC",	"",   6000,  200}#Loop.1.Main.TargetSP
+{"$(P):$(R):", "$(N):oWSP"	  ,       "$(O)",      5	,   INT16,     0,     "0.1degC",	"",   6000,  200}#Loop.1.Main.WSP
+#{"$(P):$(R):", "$(N):oWPER"   ,       "$(O)",      4	,   INT16,     0,     "0.1degC",	"",   6000,  200}#Loop.1.Main.WPERCENT (readonly)
+# Loop1.SP
+{"$(P):$(R):", "$(N):ornGH"	  ,       "$(O)",      12	,   INT16,     0,     "0.1degC",	"",   6000, 6000}#Loop.1.SP.RangeHigh
+{"$(P):$(R):", "$(N):ornGL"	  ,       "$(O)",      11	,   INT16,     0,     "0.1degC",	"",    200,  200}#Loop.1.SP.RangeLow
+{"$(P):$(R):", "$(N):ornGL"	  ,       "$(O)",      15	,   INT16,     0,     "0.1degC",	"",    200,  200}#Loop.1.SP.ActiveSP
+{"$(P):$(R):", "$(N):oSP_1"	  ,       "$(O)",      24	,   INT16,     0,     "0.1degC",	"",   6000,  200}#Loop.1.SP.SP1
+{"$(P):$(R):", "$(N):oSP_2"	  ,       "$(O)",      25	,   INT16,     0,     "0.1degC",	"",    250,  200}#Loop.1.SP.SP2
+{"$(P):$(R):", "$(N):oSP_H"	  ,       "$(O)",      111	,   INT16,     0,     "0.1degC",	"",   6000,  251}#Loop.1.SP.SPHighLimit
+{"$(P):$(R):", "$(N):oSP_L"	  ,       "$(O)",      112	,   INT16,     0,	  "0.1degC",	"",	   250,  200}#Loop.1.SP.SPLow Limit
+{"$(P):$(R):", "$(N):oSPrr"	  ,       "$(O)",      35	,   INT16,     0, "0.1degC/min",	"",    100,    0}#Loop.1.SP.Rate
+{"$(P):$(R):", "$(N):oSPRRDis",       "$(O)",      78	,   INT16,     0,	         "",	"",	   1  ,    0}#Loop.1.SP.RateDisable 0 No; 1 Yes
+# Loop1.Tune
+{"$(P):$(R):", "$(N):otune"	  ,       "$(O)",      270	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.Tune.AutotuneEnable (0 Off; 1 On)
+# Loop1.PID
+{"$(P):$(R):", "$(N):oPb"	  ,       "$(O)",      6  	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.ProportionalBand
+{"$(P):$(R):", "$(N):oti"	  ,       "$(O)",      8  	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.IntegralTime 
+{"$(P):$(R):", "$(N):otd"	  ,       "$(O)",      9  	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.DerivativeTime 
+{"$(P):$(R):", "$(N):ores"	  ,       "$(O)",      28 	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.ManualReset
+{"$(P):$(R):", "$(N):oHcb"	  ,       "$(O)",      18 	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.CutbackHigh 
+{"$(P):$(R):", "$(N):oLcb"	  ,       "$(O)",      17 	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.CutbackLow 
+{"$(P):$(R):", "$(N):oTime"	  ,       "$(O)",      83 	,	INT16,     0,	         "",	"",		  ,	    }#Loop.1.PID.Control.loop.monitoring.time
+# Loop1.OP
+{"$(P):$(R):", "$(N):oOPHi"  ,       "$(O)",      30	,	INT16,     0,	     "0.1%",	"",	  1000,	   0}#Loop.1.OP.OutputHighLimit
+{"$(P):$(R):", "$(N):oOPLo"  ,       "$(O)",      31	,	INT16,     0,	     "0.1%",	"",	  1000,	   0}#Loop.1.OP.OutputLow Limit
+# Configuration Menue/Mode: Attention! Restart after switching back to normal mode!          		 	       
+{"$(P):$(R):", "$(N):oIM"	 ,       "$(O)",      199	,   INT16,     0,            "",	"",	     2,	   0}#Access.IM(0/2)
+#{"$(P):$(R):", "$(N):oAccLev",       "$(O)",      147	,   INT16,     0,            "",	"",	     4,	   0}#Access.Level (0 Level 1; 1 Level 2; 3 Level 3; 4 Configuration)
+#Instrument
+{"$(P):$(R):", "$(N):ounit"	 ,       "$(O)",      516	,	INT16,     0, 			 "",	"",	     3,	   0}#Instrument.Display.Units (0 Deg C; 1 Deg F; 2 Deg K)
+#Loop1.Setup
+{"$(P):$(R):", "$(N):oCtrl"	 ,       "$(O)",      512	,   INT16,     0,            "",	"",	     4,	   0}#Loop.1.Setup.CH1ControlType(0 Off; 1 On/Off; 2 PID; 3 VPU; 4 VPB)
+#ALARM.1                      
+#{"$(P):$(R):", "$(N):oAL1Th" ,       "$(O)",      13 	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Threshold(historic)
+#{"$(P):$(R):", "$(N):oAL1Hy" ,       "$(O)",      47 	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Hystereris(historic)
+#{"$(P):$(R):", "$(N):oAL1De" ,       "$(O)",      221 	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Delay(historic)
+{"$(P):$(R):", "$(N):oAL1Ty" ,       "$(O)",      10240 ,	INT16,     0,            "",    "",      7,    0}#Alarm.1.Type (0:off,1:Max,2:Min,3:DifHigh,4:DifLow,5:DifBand,6:GradiPos,7:GardiNeg)
+{"$(P):$(R):", "$(N):oAL1Thr",       "$(O)",      10241	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Threshold
+{"$(P):$(R):", "$(N):oAL1Hys",       "$(O)",      10242	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Hysteresis
+{"$(P):$(R):", "$(N):oAL1Ref",       "$(O)",      10243	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Reference
+{"$(P):$(R):", "$(N):oAL1Lat",       "$(O)",      10244	,	INT16,     0,            "",    "",      3,    0}#Alarm.1.Latch(0:non,1:Auto,2:Manuell,3:Event)
+{"$(P):$(R):", "$(N):oAL1Pri",       "$(O)",      10245	,	INT16,     0,            "",    "",      3,    0}#Alarm.1.Priority(0:low,2:med,3:high)
+{"$(P):$(R):", "$(N):oAL1Blo",       "$(O)",      10246	,	INT16,     0,            "",    "",      1,    0}#Alarm.1.Block (0:no,1:yes)
+{"$(P):$(R):", "$(N):oAL1Inh",       "$(O)",      10247	,	INT16,     0,            "",    "",      1,    0}#Alarm.1.Inhibit(0:no,1:yes)
+{"$(P):$(R):", "$(N):oAL1Del",       "$(O)",      10248	,	INT16,     0,            "",    "",       ,     }#Alarm.1.Delay
+{"$(P):$(R):", "$(N):oAL1Out",       "$(O)",      10249	,	INT16,     0,            "",    "",      1,    0}#Alarm.1.Out(0:no,1:yes)
+{"$(P):$(R):", "$(N):oAL1Ack",       "$(O)",      10250	,	INT16,     0,            "",    "",      1,    0}#Alarm.1.Ack(0:no,1:yes)
+}
+
+
+#doesn not work! mbbo has no support for Float64
+#file db/mbboFloat64.template
+#
+#{ pattern { X,           Y,   PORT,   OFFSET,DATA_TYPE,     NAME1,     NAME2,     NAME3,     NAME4,     NAME5,     NAME6, VAL1, VAL2, VAL3, VAL4, VAL5, VAL6}
+#{"$(P):$(R):", "$(N):oSET", "$(O)",  72 	,	 INT16, "PIDSet1", "PIDSet2", "PIDSet3", "PIDSet4", "PIDSet5", "PIDSet6",    1,    2,    3,    4,    5,    6}
+##Loop.1.PID.ActiveSet (1 set 1; 2 set 2; 3 set 3; 4 set 4; 5 set 5; 6 set 6)
+#}

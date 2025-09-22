@@ -1,0 +1,36 @@
+# ai record template for register inputs
+record(ai, "$(P):$(R):$(N)_RAW") {
+field(DTYP,"asynFloat64")
+field(INP,"@asyn($(N))FLOAT32_LE")
+field(SCAN,"1 second")
+}
+
+# THERMOVAC Transmitter TTR 911 N
+# cali V_out = log10 (P_mbar) x 1.286 + 6.143
+
+record(calc, "$(P):$(R):$(N)") {
+field(DESC, "Pressure")
+field(SCAN,"1 second")
+field(CALC, "$(C)")
+field(INPA, "$(P):$(R):$(N)_RAW.VAL")
+field(EGU, "bar")
+}
+
+
+## ai record template for register inputs
+#record(ai, "$(P):$(R):PRESSURE0_2_RAW") {
+#field(DTYP,"asynFloat64")
+#field(INP,"@asyn(PRESSURE0_2)FLOAT32_LE")
+#field(SCAN,"1 second")
+#}
+#
+## THERMOVAC Transmitter TTR 911 N
+## cali V_out = log10 (P_mbar) x 1.286 + 6.143
+#
+#record(calc, "$(P):$(R):PRESSURE0_2") {
+#field(DESC, "Pressure")
+#field(SCAN,"1 second")
+#field(CALC, "A*20")
+#field(INPA, "$(P):$(R):PRESSURE0_2_RAW.VAL")
+#field(EGU, "bar")
+#}

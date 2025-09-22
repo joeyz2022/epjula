@@ -1,0 +1,335 @@
+#These are the A0 inputs done with word access
+# Modbus info https://eurothermonline.com/media/instrument-manuals/3200%20PID%20Temperature%20Controllers%20Engineering%20Manual%20HA028651%20Issue%2010%20(4.59MB).pdf , P.94++
+#Name		Add	Information
+#PVin   	001 Temperatur Input
+#SPin   	002 Target Setpoint (Info: just max 100.000 write cycles, no continous writing)
+#Otin   	003 manual Outputvalue
+#RRin   	035 Setpoint Ratelimit
+#Statsin	199 Operation Mode, 0:Operationmode, 1:Standby, 2:mtrValuePosCntrl
+#Ctrhin 	512 Cntrl-Type, 0:Off, 1:On/Off Cntrl, 2:PID-Cntrl, 3:mtrValuePosCntrl
+#additional Regs for CONF-Level:
+#CLvlin		199 2:conf
+#Untin		516 0:°C
+#Fmtin		525 1: nnn.n
+#			011	LowRangeLimit
+#SPhiin 	012 Input Limit Max
+#RRUin  	531 Ramp Unit, 0:/sec, 1:/min, 2:/hour
+#TCin	  12290	1:K-Type
+#----------------
+#modein		273 1:manual, 0:auto
+#rrDBGin	161 RampRate ?
+#tsDBGin	160 TargetSetpoint ?
+#spselect	276 0:loacal Setpoint, 1:Remote Setpoint
+#rmtSP		485 remote Setpoint
+
+file db/aiFloat64.template
+
+{ pattern {X,           Y,            PORT,       OFFSET,   DATA_TYPE,     PREC,    SCAN}
+
+{"$(P):$(R):", "$(N):iPV"	 ,       "$(I)",      1		,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itSP"	 ,       "$(I)",      2		,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itOPMan",       "$(I)",      3		,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itOP"	 ,       "$(I)",      4		,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iW_SP"	 ,       "$(I)",      5		,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):irnGL"	 ,       "$(I)",      11	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):irnGH"	 ,       "$(I)",      12	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSP_1"	 ,       "$(I)",      24	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSP_2"	 ,       "$(I)",      25	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSbOP"	 ,       "$(I)",      34	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSPrr"	 ,       "$(I)",      35	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSP_H"	 ,       "$(I)",      111	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSP_L"	 ,       "$(I)",      112	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iIM"	 ,       "$(I)",      199	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iCtrl"	 ,       "$(I)",      512	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iPwrF"	 ,       "$(I)",      518	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):idEcP"	 ,       "$(I)",      525	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):irmPU"	 ,       "$(I)",      531	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iinPT"	 ,       "$(I)",      12290	,   INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iunit"	 ,       "$(I)",      516	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itune"	 ,       "$(I)",      270	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):idrA"	 ,       "$(I)",      271	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):idrAt"	 ,       "$(I)",      100	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iGSP"	 ,       "$(I)",      153	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iSET"	 ,       "$(I)",      72 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iPbc"	 ,       "$(I)",      90 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):idbc"	 ,       "$(I)",      91 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iFFPb"	 ,       "$(I)",      97 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iFFtr"	 ,       "$(I)",      98 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iFFdu"	 ,       "$(I)",      99 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iPb"	 ,       "$(I)",      6  	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iti"	 ,       "$(I)",      8  	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itd"	 ,       "$(I)",      9  	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):ires"	 ,       "$(I)",      28 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iHcb"	 ,       "$(I)",      18 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iLcb"	 ,       "$(I)",      17 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):irElc"	 ,       "$(I)",      19 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iPb2"	 ,       "$(I)",      48  	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iti2"	 ,       "$(I)",      49 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):itd2"	 ,       "$(I)",      51  	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):ires2"	 ,       "$(I)",      50 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iHcb2"	 ,       "$(I)",      118 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iLcb2"	 ,       "$(I)",      117 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):irEl2"	 ,       "$(I)",      52 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iOPLo"	 ,       "$(I)",      31 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iOPHi"	 ,       "$(I)",      30 	,	INT16,         0,    "1 second"}
+#ALARM1                      
+{"$(P):$(R):", "$(N):iAL1Th" ,       "$(I)",      13 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Hy" ,       "$(I)",      47 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1De" ,       "$(I)",      221 	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Ty" ,       "$(I)",      10240 ,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Thr",       "$(I)",      10241	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Hys",       "$(I)",      10242	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Ref",       "$(I)",      10243	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Lat",       "$(I)",      10244	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Pri",       "$(I)",      10245	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Blo",       "$(I)",      10246	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Inh",       "$(I)",      10247	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Del",       "$(I)",      10248	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Out",       "$(I)",      10249	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iAL1Ack",       "$(I)",      10250	,	INT16,         0,    "1 second"}
+#ALARM GENERAL
+{"$(P):$(R):", "$(N):iALmSum",       "$(I)",      260	,	INT16,         0,    "1 second"}
+{"$(P):$(R):", "$(N):iALmAny",       "$(I)",      261	,	INT16,         0,    "1 second"}
+}
+
+file db/aoFloat64.template
+
+{ pattern {X,           Y,            PORT,       OFFSET,DATA_TYPE, PREC,			EGU,  DESC,	  HOPR, LOPR}
+# Control                                                                                          
+{"$(P):$(R):", "$(N):otSP"	  ,       "$(O)",      2	,   INT16,     0,     "0.1degC",	"",   6000,  200}
+{"$(P):$(R):", "$(N):oSPrr"	  ,       "$(O)",      35	,   INT16,     0, "0.1degC/min",	"",    100,    1}
+{"$(P):$(R):", "$(N):oSP_H"	  ,       "$(O)",      111	,   INT16,     0,     "0.1degC",	"",   6000,  251}
+{"$(P):$(R):", "$(N):oSP_L"	  ,       "$(O)",      112	,   INT16,     0,	  "0.1degC",	"",	   250,  200}
+# Autotune                                                                                         
+{"$(P):$(R):", "$(N):otune"	  ,       "$(O)",      270	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):odrA"	  ,       "$(O)",      271	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):odrAt"	  ,       "$(O)",      100	,	INT16,     0,	         "",	"",		  ,	    }
+# PID                                                                                        		   	         
+{"$(P):$(R):", "$(N):oGSP"	  ,       "$(O)",      153	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oSET"	  ,       "$(O)",      72 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oFFPb"	  ,       "$(O)",      97 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oFFtr"	  ,       "$(O)",      98 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oFFdu"	  ,       "$(O)",      99 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oPb"	  ,       "$(O)",      6  	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oti"	  ,       "$(O)",      8  	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):otd"	  ,       "$(O)",      9  	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):ores"	  ,       "$(O)",      28 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oHcb"	  ,       "$(O)",      18 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oLcb"	  ,       "$(O)",      17 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oPb2"	  ,       "$(O)",      48  	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oti2"	  ,       "$(O)",      49 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):otd2"	  ,       "$(O)",      51  	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):ores2"	  ,       "$(O)",      50 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oHcb2"	  ,       "$(O)",      118 	,	INT16,     0,	         "",	"",		  ,	    }
+{"$(P):$(R):", "$(N):oLcb2"	  ,       "$(O)",      117 	,	INT16,     0,	         "",	"",		  ,	    }
+# PID (Cooling Options)                                                                      		   	         
+#{"$(P):$(R):", "$(N):oPbc"	 ,       "$(O)",      90 	,	INT16,     0,	         "",	"",		  ,	    }
+#{"$(P):$(R):", "$(N):odbc"	 ,       "$(O)",      91 	,	INT16,     0,	         "",	"",		  ,	    }
+#{"$(P):$(R):", "$(N):orElc" ,       "$(O)",      19 	,	INT16,     0,	         "",	"",		  ,	    }
+#{"$(P):$(R):", "$(N):orEl2" ,       "$(O)",      52 	,	INT16,     0,	         "",	"",		  ,	    }
+# Outputlevel
+{"$(P):$(R):", "$(N):oOPLo"  ,       "$(O)",      31	,	INT16,     0,	     "0.1%",	"",	  1000,	   0}
+{"$(P):$(R):", "$(N):oOPHi"  ,       "$(O)",      30	,	INT16,     0,	     "0.1%",	"",	  1000,	   0}
+# Configuration Menue/Mode: Attention! Restart after switching back to normal mode!          		 	       
+{"$(P):$(R):", "$(N):oIM"	 ,       "$(O)",      199	,   INT16,     0,            "",	"",	     2,	   0}
+{"$(P):$(R):", "$(N):ounit"	 ,       "$(O)",      516	,	INT16,     0, 			 "",	"",	     3,	   0}
+{"$(P):$(R):", "$(N):ormPU"	 ,       "$(O)",      531	,   INT16,     0, 			 "",	"",	     2,	   0}
+{"$(P):$(R):", "$(N):odEcP"	 ,       "$(O)",      525	,   INT16,     0, 			 "",	"",	     2,	   0}
+{"$(P):$(R):", "$(N):ornGL"	 ,       "$(O)",      11	,   INT16,     0,     "0.1degC",	"",    200,  200}
+{"$(P):$(R):", "$(N):ornGH"	 ,       "$(O)",      12	,   INT16,     0,     "0.1degC",	"",   6000, 6000}
+{"$(P):$(R):", "$(N):oSP_1"	 ,       "$(O)",      24	,   INT16,     0,     "0.1degC",	"",   6000,  200}
+{"$(P):$(R):", "$(N):oSP_2"	 ,       "$(O)",      25	,   INT16,     0,     "0.1degC",	"",    250,  200}
+{"$(P):$(R):", "$(N):oCtrl"	 ,       "$(O)",      512	,   INT16,     0,            "",	"",	     4,	   0}
+{"$(P):$(R):", "$(N):oPwrF"	 ,       "$(O)",      518	,   INT16,     0, 	  		 "",	"",	     2,	   0}
+{"$(P):$(R):", "$(N):oinPT"	 ,       "$(O)",      12290	,   INT16,     0, 	  		 "",	"",	     1,	   1}
+#ALARM1                      
+{"$(P):$(R):", "$(N):oAL1Th" ,       "$(O)",      13 	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Hy" ,       "$(O)",      47 	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1De" ,       "$(O)",      221 	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Ty" ,       "$(O)",      10240 ,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Thr",       "$(O)",      10241	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Hys",       "$(O)",      10242	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Ref",       "$(O)",      10243	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Lat",       "$(O)",      10244	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Pri",       "$(O)",      10245	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Blo",       "$(O)",      10246	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Inh",       "$(O)",      10247	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Del",       "$(O)",      10248	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Out",       "$(O)",      10249	,	INT16,     0,            "",    "",       ,     }
+{"$(P):$(R):", "$(N):oAL1Ack",       "$(O)",      10250	,	INT16,     0,            "",    "",       ,     }
+}
+
+#eurotherm 2 -USB
+#file db/aiFloat64.template
+#{ pattern {P,           R,            PORT,       OFFSET,   DATA_TYPE,     PREC,    SCAN}
+#
+#{"$(P):$(R)", EUROMOD2:PVin,         PvFloat2,      1,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:SPin,         PvFloat2,      2,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:Otin,         PvFloat2,      3,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:SPhiin,       PvFloat2,      12,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:RRin,         PvFloat2,      35,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:RRUin,        PvFloat2,      531,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:Statsin,      PvFloat2,      199,     INT16,         0,    "1 second"}
+#{"$(P):$(R)", EUROMOD2:Ctrhin,       PvFloat2,      512,     INT16,         0,    "1 second"}
+#}
+#
+#
+#file db/aoFloat64.template
+#
+#{ pattern {P,           R,            PORT,       OFFSET,   DATA_TYPE,     PREC,    SCAN}
+#{"$(P):$(R)", EUROMOD2:PVout,         PvFloatout2,      1,     INT16,         0,    }
+#{"$(P):$(R)", EUROMOD2:SPout,         PvFloatout2,      2,     INT16,         0,    }
+#{"$(P):$(R)", EUROMOD2:Otout,         PvFloatout2,      3,     INT16,         0,   }
+#{"$(P):$(R)", EUROMOD2:SPhiout,       PvFloatout2,      12,     INT16,         0,    }
+#{"$(P):$(R)", EUROMOD2:RRout,         PvFloatout2,      35,     INT16,         0,    }
+#{"$(P):$(R)", EUROMOD2:RRUout,        PvFloatout2,      531,     INT16,         0,    }
+#{"$(P):$(R)", EUROMOD2:Statsout,      PvFloatout2,      199,     INT16,         0, }
+#{"$(P):$(R)", EUROMOD2:Ctrhout,       PvFloatout2,      512,     INT16,         0,}
+#}
+
+
+
+#file db/bi_bit.template { pattern
+#
+#{P,                R,                   PORT,     OFFSET,   ZNAM,   ONAM,  ZSV,       OSV,    SCAN, MASK}
+#{FHIISC:REAKTOR2:, EUROMOD:CALZS,         Calbool,     0,      STOP,    START,  NO_ALARM,  NO_ALARM,  "I/O Intr",0xFF00}
+#}
+
+
+#file db/bo_bit.template { pattern
+#{P,        R,             PORT,       OFFSET, ZNAM,   ONAM, MASK}
+#{FHIISC:REAKTOR2:,    EUROMOD:CALZS0B,     bo_word, 0, STOP,START,0xFF00}
+#}
+
+#file db/asynRecord.template { pattern
+#{P,           R,          PORT,              ADDR,     TMOD,  IFACE}
+#{FHIISC:REAKTOR2:,    EUROMOD:CALZSAB, bo_word,    0,        Write,  asynUInt32Digital}
+#}
+
+
+#file db/bi_bit.template { pattern
+#{P,           R,         PORT,             OFFSET,   ZNAM,   ONAM,  ZSV,       OSV,    SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y0InB,     K2_Yn_In_Bit,     0,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y1InB,     K2_Yn_In_Bit,     1,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y2InB,     K2_Yn_In_Bit,     2,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y3InB,     K2_Yn_In_Bit,     3,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y4InB,     K2_Yn_In_Bit,     4,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y5InB,     K2_Yn_In_Bit,     5,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y6InB,     K2_Yn_In_Bit,     6,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y7InB,     K2_Yn_In_Bit,     7,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y8InB,     K2_Yn_In_Bit,     8,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y9InB,     K2_Yn_In_Bit,     9,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y10InB,     K2_Yn_In_Bit,     10,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y11InB,     K2_Yn_In_Bit,     11,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y12InB,     K2_Yn_In_Bit,     12,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y13InB,     K2_Yn_In_Bit,     13,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y14InB,     K2_Yn_In_Bit,     14,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y15InB,     K2_Yn_In_Bit,     15,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y16InB,     K2_Yn_In_Bit,     16,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y17InB,     K2_Yn_In_Bit,     17,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y18InB,     K2_Yn_In_Bit,     18,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y19InB,     K2_Yn_In_Bit,     19,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y20InB,     K2_Yn_In_Bit,     20,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y21InB,     K2_Yn_In_Bit,     21,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y22InB,     K2_Yn_In_Bit,     22,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y23InB,     K2_Yn_In_Bit,     23,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y24InB,     K2_Yn_In_Bit,     24,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y25InB,     K2_Yn_In_Bit,     25,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y26InB,     K2_Yn_In_Bit,     26,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y27InB,     K2_Yn_In_Bit,     27,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y28InB,     K2_Yn_In_Bit,     28,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y29InB,     K2_Yn_In_Bit,     29,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y30InB,     K2_Yn_In_Bit,     30,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y31InB,     K2_Yn_In_Bit,     31,        Low,    High,  NO_ALARM,  MAJOR,  "I/O Intr"}
+#
+#}
+#file db/longin.template { pattern
+#{P,           R,         PORT,             OFFSET,   SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y0InBL,     K2_Yn_In_Bit,     0,        "1 second"}
+#}
+#file db/intarray_in.template { pattern
+#{P,           R,           PORT,             NELM,     SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnInBArray,  K2_Yn_In_Bit,     32,     "I/O Intr"}
+#}
+#file db/asynRecord.template { pattern
+#{P,           R,         PORT,             ADDR,     TMOD,  IFACE}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnInBAsyn, K2_Yn_In_Bit,     0,        Read,  asynUInt32Digital}
+#}
+#file db/statistics.template { pattern
+#{P,           R,         PORT,          SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnInB,     K2_Yn_In_Bit,  "10 second"}
+#}
+#file db/poll_delay.template { pattern
+#{P,           R,              PORT}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnInBPollDelay, K2_Yn_In_Bit}
+#}
+
+
+#file db/bo_bit.template { pattern
+#{P,           R,          PORT,              OFFSET,   ZNAM,   ONAM}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y0OutB,     K2_Yn_Out_Bit,     0,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y1OutB,     K2_Yn_Out_Bit,     1,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y2OutB,     K2_Yn_Out_Bit,     2,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y3OutB,     K2_Yn_Out_Bit,     3,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y4OutB,     K2_Yn_Out_Bit,     4,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y5OutB,     K2_Yn_Out_Bit,     5,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y6OutB,     K2_Yn_Out_Bit,     6,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y7OutB,     K2_Yn_Out_Bit,     7,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y8OutB,     K2_Yn_Out_Bit,     8,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y9OutB,     K2_Yn_Out_Bit,     9,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y10OutB,     K2_Yn_Out_Bit,     10,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y11OutB,     K2_Yn_Out_Bit,     11,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y12OutB,     K2_Yn_Out_Bit,     12,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y13OutB,     K2_Yn_Out_Bit,     13,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y14OutB,     K2_Yn_Out_Bit,     14,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y15OutB,     K2_Yn_Out_Bit,     15,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y16OutB,     K2_Yn_Out_Bit,     16,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y17OutB,     K2_Yn_Out_Bit,     17,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y18OutB,     K2_Yn_Out_Bit,     18,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y19OutB,     K2_Yn_Out_Bit,     19,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y20OutB,     K2_Yn_Out_Bit,     20,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y21OutB,     K2_Yn_Out_Bit,     21,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y22OutB,     K2_Yn_Out_Bit,     22,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y23OutB,     K2_Yn_Out_Bit,     23,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y24OutB,     K2_Yn_Out_Bit,     24,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y25OutB,     K2_Yn_Out_Bit,     25,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y26OutB,     K2_Yn_Out_Bit,     26,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y27OutB,     K2_Yn_Out_Bit,     27,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y28OutB,     K2_Yn_Out_Bit,     28,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y29OutB,     K2_Yn_Out_Bit,     29,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y30OutB,     K2_Yn_Out_Bit,     30,        Low,    High}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y31OutB,     K2_Yn_Out_Bit,     31,        Low,    High}
+#}
+#file db/longout.template { pattern
+#{P,           R,         PORT,             OFFSET}
+#{FHIISC:REAKTOR2:EUROMOD:,    Y0OutBL,     K2_Yn_Out_Bit,    0}
+#}
+#file db/asynRecord.template { pattern
+#{P,           R,          PORT,              ADDR,     TMOD,  IFACE}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnOutBAsyn, K2_Yn_Out_Bit,     0,        Read,  asynUInt32Digital}
+#}
+#file db/statistics.template { pattern
+#{P,           R,          PORT,           SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    YnOutB,     K2_Yn_Out_Bit,  "10 second"}
+#}
+
+#file "db/bi_word.template" { pattern
+#{P,           R,       PORT,           OFFSET,    MASK,     ZNAM,   ONAM,  ZSV,       OSV,    SCAN}
+#{FHIISC:REAKTOR2:EUROMOD:,    X0W,     K1_Xn_Word,     0,        0x0001,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X1W,     K1_Xn_Word,     0,        0x0002,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X2W,     K1_Xn_Word,     0,        0x0004,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X3W,     K1_Xn_Word,     0,        0x0008,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X4W,     K1_Xn_Word,     0,        0x0010,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X5W,     K1_Xn_Word,     0,        0x0020,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X6W,     K1_Xn_Word,     0,        0x0040,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#{FHIISC:REAKTOR2:EUROMOD:,    X7W,     K1_Xn_Word,     0,        0x0080,    Low,    High,  NO_ALARM,  MAJOR,  "1 second"}
+#}
+
+
+#file "db/longinInt32.template" { pattern
+#{P,           R,                PORT,       OFFSET,   DATA_TYPE,      SCAN}
+#{SIM1:,    LI:UINT16,        A100_In_Word,   1,     UINT16,        "1 second"}
+#}
+
+
+

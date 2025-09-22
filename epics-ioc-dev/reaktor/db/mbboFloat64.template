@@ -1,0 +1,18 @@
+record(mbbo, "$(X)$(Y)") {
+    #field(DTYP, "asynFloat64")
+	field(DTYP, "asynInt32")
+    field(OUT , "@asyn($(PORT) $(OFFSET))$(DATA_TYPE)")
+    field(ZRST, "$(NAME1)")
+	field(ZRVL, "$(VAL1)")
+	field(ONST, "$(NAME2)")
+	field(ONVL, "$(VAL2)")
+    field(TWST, "$(NAME3)")
+	field(TWVL, "$(VAL3)")
+    field(THST, "$(NAME4)")
+	field(THVL, "$(VAL4)")
+    field(FRST, "$(NAME5)")
+	field(FRVL, "$(VAL5)")
+    field(FVST, "$(NAME6)")
+	field(FVVL, "$(VAL6)")
+	#field(VAL, "1")
+}

@@ -1,0 +1,59 @@
+# \$3 = NODE!!!!
+Terminator = CR LF;
+ReplyTimeout = 3000;
+LockTimeout = 3000;
+
+identity{
+	out ":0780040060006000";
+	in ":138002006000%26c00";
+}
+
+readChar{
+	#out ":068004\$1\$2\$1\$2";
+	out ":06\$304\$1\$2\$1\$2";
+	#in ":058002\$1\$2%X";
+	in ":05\$302\$1\$2%X";
+}
+
+writeChar{
+	#out ":058002\$1\$2%02X";
+	out ":05\$302\$1\$2%02X";
+	@init{readChar;}
+}
+
+writeCharreset{
+	#out ":058002\$1\$2%02X";
+	out ":05\$302\$1\$2%02X";
+}
+
+#SHOULD readInt also contain 0-padding?
+readInt{
+	#out ":068004\$1\$2\$1\$2";
+	out ":06\$304\$1\$2\$1\$2";
+	#in ":068002\$1\$2%X";
+	in ":06\$302\$1\$2%X";
+}
+
+writeInt{
+	#out ":068002\$1\$2%04X";
+	out ":06\$302\$1\$2%04X";
+	@init{readInt;}
+}
+
+readFloat{
+	#out ":068004\$1\$2\$1\$2";
+	out	":06\$304\$1\$2\$1\$2";
+	in  ":08\$302\$1\$2%X";
+	#in ":088002\$1\$2%X";
+}
+
+writeFloat{
+	out ":08\$302\$1\$2%08X";
+	#out ":088002\$1\$2%08X";
+	@init{readFloat;}
+}
+
+debug{
+	out ":068004\$1\$2\$1\$2";
+	in "%39c";
+}

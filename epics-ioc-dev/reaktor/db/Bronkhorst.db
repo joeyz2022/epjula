@@ -1,0 +1,1579 @@
+#################################################################################
+#
+################################################################################
+record(stringin, "$(IOC):$(NAME)-NAME")
+{
+	field(DESC, "Name of the device")
+	field(VAL, "$(NAME) Device")
+	field(PINI, "YES")
+}
+
+record(stringin, "$(IOC):$(NAME)-IDN")
+{
+	field(DESC, "Name of the device")
+	field(INP, "@devBronkhorst.proto identity $(PORT)")
+	field(PINI, "YES")
+}
+
+################################################################################
+################################################################################
+#INTEGER PARAMETERS
+################################################################################
+################################################################################
+################################################################################
+# Read; Measure will return a value between -23593 and 41942
+# Record $(IOC):$(NAME)-MEASURE recomputes this value to percentages. NOTE that percentage
+# can be larger than 100% (max value: 131.07%) and even negative for bipolar
+# ADC mode. (min value: -73.73%)
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-MEASURE_")
+{
+	field(DESC, "Read measure")
+	field(SCAN, "$(SCAN2)")
+	field(DTYP, "stream")
+	field(PREC, "3")
+	field(INP, "@devBronkhorst.proto readInt(01,20,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-MEASURE")
+}
+
+record(calc, "$(IOC):$(NAME)-GET-MEASURE")
+{
+	field(DESC, "Measure to percentage")
+	field(INPA, "$(IOC):$(NAME)-GET-MEASURE_")
+	field(EGU, "%")
+	field(PREC, "3")
+	field(CALC, "A*100/32000")
+	field(FLNK, "$(IOC):$(NAME)-COMM-STATUS")
+}
+
+
+################################################################################
+# Read; $(IOC):$(NAME)-GET-SETPOINT_ fetches the value from the device, 
+# $(IOC):$(NAME)-GET-SETPOINT recalculates the value to percentages.
+#
+# $(IOC):$(NAME)-GET-SETPOINT_ is scanned periodically, because setpoint value can be 
+# changed on ALARM or when the Counter reaches it's limit - this is configured
+# by the user
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-SETPOINT_")
+{
+	field(DESC, "Read setpoint in raw [0,32000]")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN2)")
+	field(INP, "@devBronkhorst.proto readInt(01,21,$(NODE)) $(PORT)")
+	field(PREC, "1")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-SETPOINT")
+}
+
+record(calc, "$(IOC):$(NAME)-GET-SETPOINT")
+{
+	field(DESC, "Setpoint to percentage")
+	field(INPA, "$(IOC):$(NAME)-GET-SETPOINT_")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(CALC, "A*100/32000")
+}
+
+################################################################################
+# Write; User writes the flow percentage to $(IOC):$(NAME)-SET-SETPOINT.
+# $(IOC):$(NAME)-SET-SETPOINT_ recalculates the percentage to interval [0, 32000] and 
+# writes the new setpoint to the device
+################################################################################
+record(ao, "$(IOC):$(NAME)-SET-SETPOINT")
+{
+	field(DESC, "Setpoint in percentage")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(FLNK, "$(IOC):$(NAME)-SET-SETPOINT_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-SETPOINT_")
+{
+	field(DESC, "Write setpoint in raw [0,32000]")
+	field(INPA, "$(IOC):$(NAME)-SET-SETPOINT")
+	field(PREC, "1")
+	field(DTYP, "stream")
+	field(CALC, "A*32000/100")
+	field(OUT, "@devBronkhorst.proto writeInt(01,21,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-SETPOINT_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-SP-INIT_"){
+	field(INPA, "$(IOC):$(NAME)-SET-SETPOINT_")
+	field(CALC, "A*100/32000")
+	field(OUT, "$(IOC):$(NAME)-SET-SETPOINT")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-SETPOINT")
+
+}
+
+################################################################################
+# Read/Write: Setpoint is ramped from 0% to 100% in slope*0.1 seconds
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-SETPOINT-SLOPE")
+{
+	field(DESC, "Read setpoint slope")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(PINI, "YES")
+	field(INP, "@devBronkhorst.proto readInt(01,22,$(NODE)) $(PORT)")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-SETPOINT-SLOPE")
+{
+	field(DESC, "Write setpoint slope")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeInt(01,22,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-SETPOINT-SLOPE")
+}
+
+################################################################################
+# Read/Write: Get control mode from device. One of $(IOC):$(NAME)-CTRL-MODE-1/2_ will
+# be in illegal value state. The GUI screen will show the one which is not in 
+# illegal value state by checking the severity of the state
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-CTRL-MODE_")
+{
+	field(DESC,"")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(01,04,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-CTRL-MODE-1_")
+}
+
+record(mbbi, "$(IOC):$(NAME)-CTRL-MODE-1_")
+{
+	field(DESC, "Control modes 0-15")
+	field(DTYP, "Raw Soft Channel")
+	field(INP, "$(IOC):$(NAME)-GET-CTRL-MODE_")
+	field(UNSV, "MAJOR")
+	field(ZRVL, "0")
+	field(ZRST, "BUS/RS232")
+	field(ONVL, "1")
+	field(ONST, "Analog input")
+	field(TWVL, "2")
+	field(TWST, "FLOWBUS*FLOWBUS")
+	field(THVL, "3")
+	field(THST, "Close valve")
+	field(FRVL, "4")
+	field(FRST, "Controller idle")
+	field(FVVL, "5")
+	field(FVST, "Testmode")
+	field(SXVL, "6")
+	field(SXST, "Tuning mode")
+	field(SVVL, "7")
+	field(SVST, "Setpoint=100%")
+	field(EIVL, "8")
+	field(EIST, "Purge valve")
+	field(NIVL, "9")
+	field(NIST, "Calibration mode")
+	field(TEVL, "10")
+	field(TEST, "analogIn*FLOWBUS")
+	field(ELVL, "11")
+	field(ELST, "Keyboard||FLOWBUS")
+	field(TVVL, "12")
+	field(TVST, "Setpoint=0%")
+	field(TTVL, "13")
+	field(TTST, "FLOWBUS*analogIn")
+	field(FTVL, "14")
+	field(FTST, "Range select mode")
+	field(FFVL, "15")
+	field(FFST, "Manual start, auto end")
+	field(FLNK, "$(IOC):$(NAME)-CTRL-MODE-2_")
+}
+
+record(mbbi, "$(IOC):$(NAME)-CTRL-MODE-2_")
+{
+	field(DESC, "Control modes 0-15")
+	field(DTYP, "Raw Soft Channel")
+	field(INP, "$(IOC):$(NAME)-GET-CTRL-MODE_")
+	field(UNSV, "MAJOR")
+	field(ZRSV, "MAJOR")
+	field(ONVL, "16")
+	field(ONST, "Auto start, manual end")
+	field(TWVL, "17")
+	field(TWST, "Auto start/end")
+	field(THVL, "18")
+	field(THST, "RS232 setpoint")
+	field(FRVL, "19")
+	field(FRST, "RS232 broadcast")
+	field(FVVL, "20")
+	field(FVST, "Valve stearing")
+	field(SXVL, "21")
+	field(SXST, "Analog valve stearing")
+	field(SVVL, "22")
+	field(SVST, "Valve safe state")
+}
+
+################################################################################
+# Read/Write: Set control mode. GUI screen will contain strings representing
+# the values on the interval [0, 22]. These values correspond to states in mbbi 
+# records $(IOC):$(NAME)-CTRL-MODE-1,2_
+################################################################################
+record(ao, "$(IOC):$(NAME)-SET-CTRL-MODE")
+{
+	field(DESC,"Set the control mode")
+	field(DTYP, "stream")	
+	field(OUT, "@devBronkhorst.proto writeChar(01,04,$(NODE)) $(PORT)")
+}
+
+
+################################################################################
+# Read/Write: Get/Set fluid number.
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-FLUID-NUM")
+{
+	field(DESC, "Read fluid number")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(PINI, "YES")
+	field(INP, "@devBronkhorst.proto readChar(01,10,$(NODE)) $(PORT)")
+
+}
+
+record(ao, "$(IOC):$(NAME)-SET-FLUID-NUM")
+{
+	field(DESC, "Set fluid number")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeChar(01,10,$(NODE)) $(PORT)")
+}
+
+################################################################################
+# Read: Read sensor type
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-SENSOR-TYPE")
+{
+	field(DESC,"Read sensor type")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")	
+	field(INP, "@devBronkhorst.proto readChar(01,0E,$(NODE)) $(PORT)")
+	field(ZRVL, "0")
+	field(ONVL, "1")
+	field(TWVL, "2")
+	field(THVL, "3")
+	field(FRVL, "4")
+	field(FVVL, "128")
+	field(SXVL, "129")
+	field(SVVL, "130")
+	field(EIVL, "131")
+	field(NIVL, "132")
+	field(ZRST, "Pressure controller")
+	field(ONST, "Liquid volume controller")
+	field(TWST, "Liquid/gas controller")
+	field(THST, "Gas volume controller")
+	field(FRST, "Other controller")
+	field(FVST, "Pressure sensor")
+	field(SXST, "Liquid volume sensor")
+	field(SVST, "Liquid/gas mass sensor")
+	field(EIST, "Gas volume sensor")
+	field(NIST, "Other sensor")
+	field(PINI, "YES")
+}
+
+
+################################################################################
+# Read: Get readout unit
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-CAP-UNIT-IDX")
+{
+	field(DESC, "Capacity unit index")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(01,0F,$(NODE)) $(PORT)")
+	field(ZRST, "ln/min")
+	field(ONST, "mln/h")
+	field(TWST, "mln/min")
+	field(THST, "ln/h")
+	field(FRST, "m3n/h")
+	field(FFST, "mls/min")
+	field(SXST, "mls/h")
+	field(SVST, "ls/min")
+	field(EIST, "ls/h")
+	field(NIST, "m3s/h")
+	field(PINI, "YES")
+}
+
+################################################################################
+# Read/write Capacity 100%
+################################################################################
+
+record(ai, "$(IOC):$(NAME)-GET-CAP")
+{
+	field(DESC, "Read Capacity ")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-CAP_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-CAP__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-CAP")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-CAP")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-CAP__")
+{
+	field(DESC, "Read capacity as long")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(01,4D,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN2)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CAP_")
+}
+
+
+#record(ao, "$(IOC):$(NAME)-SET-CAP")
+#{
+#	field(DESC, "Set capacity")
+#	field(FLNK, "$(IOC):$(NAME)-SET-CAP_")
+#}
+
+#record(aSub, "$(IOC):$(NAME)-SET-CAP_")
+#{
+#	field(DESC, "Interpret long as float")
+#	field(INPA, "$(IOC):$(NAME)-SET-CAP")
+#	field(FTA, "FLOAT")
+#	field(OUTA, "$(IOC):$(NAME)-SET-CAP__")
+#	field(FTVA, "LONG")
+#	field(SNAM, "writeFloat")
+#	field(FLNK, "$(IOC):$(NAME)-SET-CAP__")
+#}
+
+#record(ao, "$(IOC):$(NAME)-SET-CAP__")
+#{
+#	field(DESC, "Set capacity as long")
+#	field(DTYP, "stream")
+#	field(OUT, "@devBronkhorst.proto writeFloat(01,4D,$(NODE)) $(PORT)")
+#	field(FLNK, "$(IOC):$(NAME)-GET-CAP__")
+#}
+
+#record(aSub, "$(IOC):$(NAME)-SET-CAP-INIT_")
+#{
+#	field(DESC, "Interpret long as float")
+#	field(INPA, "$(IOC):$(NAME)-SET-CAP__")
+#	field(FTA, "LONG")
+#	field(OUTA, "$(IOC):$(NAME)-SET-CAP")
+#	field(FTVA, "FLOAT")
+#	field(SNAM, "readFloat")
+#	field(PINI, "YES")
+#	field(FLNK, "$(IOC):$(NAME)-SET-CAP")
+#}
+
+
+
+
+################################################################################
+# Read: Valve will go into the safe state if buss communication is lost and
+# control mode is in BUS/RS232 state or if initreset = 73 or if control mode
+# is 22.
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-VALVE-STATE")
+{
+	field(DESC, "Capacity unit index")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(72,1A,$(NODE)) $(PORT)")
+	field(ZRST, "Deactivate")
+	field(ONST, "Activate")
+	field(TWST, "Close")
+	field(THST, "Open")
+	field(FRST, "Current position")
+	field(FFST, "Safe Value")
+	field(PINI, "YES")
+}
+
+record(mbbo, "$(IOC):$(NAME)-SET-VALVE-STATE")
+{
+	field(DESC, "Capacity unit index")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeChar(72,1A,$(NODE)) $(PORT)")
+	field(ZRST, "Deactivate")
+	field(ONST, "Activate")
+	field(TWST, "Close")
+	field(THST, "Open")
+	field(FRST, "Current position")
+	field(FFST, "Safe Value")
+	field(FLNK, "$(IOC):$(NAME)-GET-VALVE-STATE")
+}
+
+################################################################################
+# Read: Alarm info. mbbiDirect record checks which flags are set and then 
+# starts (forward links) the process chain of bi records representing the value
+# of each alarm state. 
+################################################################################
+record(mbbiDirect, "$(IOC):$(NAME)-GET-ALARM-INFO")
+{
+	field(DESC, "Read alarm flags")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readChar(01,14,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN2)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-ERROR-MSG-NUM")
+}
+
+################################################################################
+# Read: Alarm mode
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-ALARM-MODE")
+{
+	field(DESC, "Read alarm mode")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readChar(61,03,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN1)")
+	field(ZRST, "Off")
+	field(ONST, "Absolute Limits")
+	field(TWST, "Setpoint Limits")
+	field(THST, "Power up")
+	field(PINI, "YES")
+}
+
+################################################################################
+# Write; Set Alarm mode
+################################################################################
+record(mbbo, "$(IOC):$(NAME)-SET-ALARM-MODE")
+{
+	field(DESC, "Set alarm mode")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeChar(61,03,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN1)")
+	field(ZRST, "Off")
+	field(ONST, "Absolute Limits")
+	field(TWST, "Setpoint Limits")
+	field(THST, "Power up")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALARM-MODE")
+}
+################################################################################
+# Read-Write; Get/Set maximum alarm limit. User specifies percentage which is 
+# converted to interval [0, 32000]
+################################################################################
+record(calc, "$(IOC):$(NAME)-GET-ALM-MAX-LIM")
+{
+	field(DESC, "Get alarm maximum limit in %")
+	field(INPA, "$(IOC):$(NAME)-GET-ALM-MAX-LIM_")
+	field(SCAN, "$(SCAN1)")
+	field(PREC, "1")
+	field(CALC, "A*100/32000")
+	field(EGU, "%")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-ALM-MAX-LIM_")
+{
+	field(DESC, "Get alarm maximum limit in raw")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readInt(61,21,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN1)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-MAX-LIM")
+}
+
+record(ai, "$(IOC):$(NAME)-SET-ALM-MAX-LIM")
+{
+	field(DESC, "Set alarm maximum limit in %")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-MAX-LIM_")
+	field(EGU, "%")
+	field(PREC, "1")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-MAX-LIM_")
+{
+	field(DESC, "Set alarm maximum limit in raw")
+	field(DTYP, "stream")
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-MAX-LIM")
+	field(CALC, "A*32000/100")
+	field(OUT, "@devBronkhorst.proto writeInt(61,21,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-MAX-LIM_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-MAX-LIM-INIT_"){
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-MAX-LIMT_")
+	field(CALC, "A*100/32000")
+	field(OUT, "$(IOC):$(NAME)-SET-ALM-MAX-LIM")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-MAX-LIM")
+
+}
+
+################################################################################
+# Read-Write; Get/Set minimum alarm limit. User specifies percentage which is 
+# converted to interval [0, 32000]
+################################################################################
+record(calc, "$(IOC):$(NAME)-GET-ALM-MIN-LIM")
+{
+	field(DESC, "Get alarm minimum limit in %")
+	field(INPA, "$(IOC):$(NAME)-GET-ALM-MIN-LIM_")
+	field(SCAN, "$(SCAN1)")
+	field(PREC, "1")
+	field(CALC, "A*100/32000")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-ALM-MIN-LIM_")
+{
+	field(DESC, "Get alarm minimum limit in raw")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readInt(61,22,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN1)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-MIN-LIM")
+}
+
+record(ai, "$(IOC):$(NAME)-SET-ALM-MIN-LIM")
+{
+	field(DESC, "Set alarm minimum limit in %")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-MIN-LIM_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-MIN-LIM_")
+{
+	field(DESC, "Set alarm minimum limit in raw")
+	field(DTYP, "stream")
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-MIN-LIM")
+	field(CALC, "A*32000/100")
+	field(OUT, "@devBronkhorst.proto writeInt(61,22,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-MIN-LIM_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-MIN-LIM-INIT_"){
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-MIN-LIMT_")
+	field(CALC, "A*100/32000")
+	field(OUT, "$(IOC):$(NAME)-SET-ALM-MIN-LIM")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-MIN-LIM")
+
+}
+
+
+################################################################################
+# Read-Write; Get/Set alarm setpoint mode. If device goes into an alarm state,
+# a new setpoint (stored in the record $(IOC):$(NAME)-GET/SET-ALM-NEW-SP) will be set, 
+# but only if device ($(IOC):$(NAME)-GET/SET-ALM-SP-MODE) is in state 1.
+################################################################################
+record(bi, "$(IOC):$(NAME)-GET-ALM-SP-MODE")
+{
+	field(DESC, "Get alarm setpoint mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(PINI, "YES")
+	field(INP, "@devBronkhorst.proto readChar(61,05,$(NODE)) $(PORT)")
+}
+
+record(bo, "$(IOC):$(NAME)-SET-ALM-SP-MODE")
+{
+	field(DESC, "Set alarm setpoint mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(OUT, "@devBronkhorst.proto writeChar(61,05,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-SP-MODE")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-ALM-NEW-SP_")
+{
+	field(DESC, "Read alarm setpoint")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readInt(61,26,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-NEW-SP")
+}
+
+record(calc, "$(IOC):$(NAME)-GET-ALM-NEW-SP")
+{
+	field(DESC, "Alarm setpoint to percentage")
+	field(INPA, "$(IOC):$(NAME)-GET-ALM-NEW-SP_")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(CALC, "A*100/32000")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-ALM-NEW-SP")
+{
+	field(DESC, "Alarm setpoint in percentage")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-NEW-SP_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-NEW-SP_")
+{
+	field(DESC, "Write alarm setpoint")
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-NEW-SP")
+	field(DTYP, "stream")
+	field(CALC, "A*32000/100")
+	field(OUT, "@devBronkhorst.proto writeInt(61,26,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-NEW-SP_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-ALM-NEW-SP-INIT_"){
+	field(INPA, "$(IOC):$(NAME)-SET-ALM-NEW-SP_")
+	field(CALC, "A*100/32000")
+	field(OUT, "$(IOC):$(NAME)-SET-ALM-NEW-SP")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-ALM-NEW-SP")
+
+}
+
+
+################################################################################
+# Read-Write; Alarm delay time seconds. Alarm action will be delayed when alarm
+# limit has been exceeded. Automatic reset will be delayed when sensor signal
+# reaches safe level again.
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-ALM-DELAY")
+{
+	field(DESC, "Get alarm delay")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(EGU, "s")
+	field(PINI, "YES")
+	field(INP, "@devBronkhorst.proto readChar(61,07,$(NODE)) $(PORT)")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-ALM-DELAY")
+{
+	field(DESC, "Get alarm delay")
+	field(DTYP, "stream")
+	field(EGU, "s")
+	field(OUT, "@devBronkhorst.proto writeChar(61,07,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-ALM-DELAY")
+}
+
+################################################################################
+# Read-Write; Enable reset alarm for different reset triggers.
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-RESET-ALM-MODE")
+{
+	field(DESC, "Get reset alarm mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(61,09,$(NODE)) $(PORT)")
+	field(ZRST, "OFF")
+	field(ONST, "Switch")
+	field(TWST, "External")
+	field(THST, "External,Switch")
+	field(FRST, "RS232")
+	field(FVST, "RS232,Switch")
+	field(SXST, "RS232,Ext")
+	field(SVST, "RS232,Ext,Switch")
+	field(EIST, "Auto")
+	field(NIST, "Auto,Switch")
+	field(TEST, "Auto,Ext")
+	field(ELST, "Auto,Ext,Switch")
+	field(TVST, "Auto,RS232")
+	field(TTST, "Auto,RS232,Switch")
+	field(FTST, "Auto,RS232,Ext")
+	field(FFST, "Auto,RS232,Ext,Switch")
+	#field(PINI, "YES")
+}
+
+record(mbboDirect, "$(IOC):$(NAME)-SET-RESET-ALM-MODE")
+{
+	field(DESC, "Set alarm reset mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(B0, "1")
+	field(B2, "1")
+	field(OUT, "@devBronkhorst.proto writeChar(61,09,$(NODE)) $(PORT)")
+#	field(ZRST, "OFF")
+#	field(ONST, "Switch")
+#	field(TWST, "External")
+#	field(THST, "Switch,External")
+#	field(FRST, "RS232")
+#	field(FVST, "RS232,Switch")
+#	field(SXST, "RS232,Ext")
+#	field(SVST, "RS232,Ext,Switch")
+#	field(EIST, "Auto")
+#	field(NIST, "Auto,Switch")
+#	field(TEST, "Auto,Ext")
+#	field(ELST, "Auto,Ext,Switch")
+#	field(TVST, "Auto,RS232")
+#	field(TTST, "Auto,RS232,Switch")
+#	field(FTST, "Auto,RS232,Ext")
+#	field(FFST, "Auto,RS232,Ext,Switch")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-RESET-ALM-MODE")
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-SWITCH")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-ALM-MODE.B0")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-ALM-MODE")
+
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-EXT")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-ALM-MODE.B1")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-ALM-MODE")
+
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-RS232")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-ALM-MODE.B2")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-ALM-MODE")
+
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-AUTO")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-ALM-MODE.B3")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-ALM-MODE")
+
+}
+
+################################################################################
+# Read-Write; Counter mode.
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-CNT-MODE")
+{
+	field(DESC, "Get counter mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(68,08,$(NODE)) $(PORT)")
+	field(ZRST, "Off")
+	field(ONST, "Continuous")
+	field(TWST, "To limit")
+	field(PINI, "YES")
+}
+
+record(mbbo, "$(IOC):$(NAME)-SET-CNT-MODE")
+{
+	field(DESC, "Set counter mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeChar(68,08,$(NODE)) $(PORT)")
+	field(ZRST, "Off")
+	field(ONST, "Continuous")
+	field(TWST, "To limit")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-MODE")
+}
+
+################################################################################
+# Read-Write; Counter setpoint mode. 0 - No setpoint change when limit is 
+# reached. 1 - setpoint change when limit is reached
+################################################################################
+record(bi, "$(IOC):$(NAME)-GET-CNT-SP-MODE")
+{
+	field(DESC, "Get counter mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(68,05,$(NODE)) $(PORT)")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(PINI, "YES")
+}
+
+record(bo, "$(IOC):$(NAME)-SET-CNT-SP-MODE")
+{
+	field(DESC, "Set counter mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeChar(68,05,$(NODE)) $(PORT)")
+	field(ZNAM, "NO")
+	field(ONAM, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-SP-MODE")
+}
+
+################################################################################
+# Read-Write; Get/Set new counter setpoint which will apply f GET-CNT-SP-MODE is
+# YES when limit is reached.
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-CNT-NEW-SP_")
+{
+	field(DESC, "Read counter new setpoint")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readInt(68,26,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-NEW-SP")
+}
+
+record(calc, "$(IOC):$(NAME)-GET-CNT-NEW-SP")
+{
+	field(DESC, "Counter new setpoint to percentage")
+	field(INPA, "$(IOC):$(NAME)-GET-CNT-NEW-SP_")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(CALC, "A*100/32000")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-CNT-NEW-SP")
+{
+	field(DESC, "Counter new setpoint in percentage")
+	field(EGU, "%")
+	field(PREC, "1")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT-NEW-SP_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-CNT-NEW-SP_")
+{
+	field(DESC, "Write counter new setpoint")
+	field(INPA, "$(IOC):$(NAME)-SET-CNT-NEW-SP")
+	field(DTYP, "stream")
+	field(CALC, "A*32000/100")
+	field(OUT, "@devBronkhorst.proto writeInt(68,26,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-NEW-SP_")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-CNT-NEW-SP-INIT_"){
+	field(INPA, "$(IOC):$(NAME)-SET-CNT-NEW-SP_")
+	field(CALC, "A*100/32000")
+	field(OUT, "$(IOC):$(NAME)-SET-CNT-NEW-SP")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT-NEW-SP")
+
+}
+
+################################################################################
+# Read-Write; Counter unit
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-CNT-UNIT")
+{
+	field(DESC, "Read counter unit")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readChar(68,02,$(NODE)) $(PORT)")
+	field(ZRST, "ln")
+	field(ONST, "mm3n")
+	field(TWST, "mln")
+	field(THST, "cm3n")
+	field(FRST, "uln")
+	field(FVST, "dm3n")
+	field(SXST, "m3n")
+	field(SVST, "uls")
+	field(EIST, "mm3s")
+	field(NIST, "mls")
+	field(TEST, "cm3s")
+	field(ELST, "ls")
+	field(TVST, "dm3s")
+	field(TTST, "m3s")
+#	field(PINI, "YES")
+}
+
+record(mbbo, "$(IOC):$(NAME)-SET-CNT-UNIT")
+{
+	field(DESC, "Read counter unit")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeChar(68,02,$(NODE)) $(PORT)")
+	field(VAL, "0")
+	field(ZRST, "ln")
+	field(ONST, "mm3n")
+	field(TWST, "mln")
+	field(THST, "cm3n")
+	field(FRST, "uln")
+	field(FVST, "dm3n")
+	field(SXST, "m3n")
+	field(SVST, "uls")
+	field(EIST, "mm3s")
+	field(NIST, "mls")
+	field(TEST, "cm3s")
+	field(ELST, "ls")
+	field(TVST, "dm3s")
+	field(TTST, "m3s")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-UNIT")
+}
+
+
+################################################################################
+# Read-Write; Enable reset counter for different reset triggers.
+################################################################################
+record(mbbi, "$(IOC):$(NAME)-GET-RESET-CNT-MODE")
+{
+	field(DESC, "Get reset alarm mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(68,09,$(NODE)) $(PORT)")
+	field(ZRST, "OFF")
+	field(ONST, "Switch")
+	field(TWST, "External")
+	field(THST, "Switch,External")
+	field(FRST, "RS232")
+	field(FVST, "RS232,Switch")
+	field(SXST, "RS232,Ext")
+	field(SVST, "RS232,Ext,Switch")
+	field(EIST, "Auto")
+	field(NIST, "Auto,Switch")
+	field(TEST, "Auto,Ext")
+	field(ELST, "Auto,Ext,Switch")
+	field(TVST, "Auto,RS232")
+	field(TTST, "Auto,RS232,Switch")
+	field(FTST, "Auto,RS232,Ext")
+	field(FFST, "Auto,RS232,Ext,Switch")
+}
+
+record(mbboDirect, "$(IOC):$(NAME)-SET-RESET-CNT-MODE")
+{
+	field(DESC, "Set alarm reset mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(B0, "1")
+	field(B2, "1")
+	field(OUT, "@devBronkhorst.proto writeChar(68,09,$(NODE)) $(PORT)")
+#	field(ZRST, "OFF")
+#	field(ONST, "Switch")
+#	field(TWST, "External")
+#	field(THST, "Switch,External")
+#	field(FRST, "RS232")
+#	field(FVST, "RS232,Switch")
+#	field(SXST, "RS232,Ext")
+#	field(SVST, "RS232,Ext,Switch")
+#	field(EIST, "Auto")
+#	field(NIST, "Auto,Switch")
+#	field(TEST, "Auto,Ext")
+#	field(ELST, "Auto,Ext;Switch")
+#	field(TVST, "Auto,RS232")
+#	field(TTST, "Auto,RS232,Switch")
+#	field(FTST, "Auto,RS232,Ext")
+#	field(FFST, "Auto,RS232,Ext,Switch")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-RESET-CNT-MODE")
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-CNT-SWITCH")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-CNT-MODE.B0")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-CNT-MODE")
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-CNT-EXT")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-CNT-MODE.B1")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-CNT-MODE")
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-CNT-RS232")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-CNT-MODE.B2")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-CNT-MODE")
+}
+
+record(bo, "$(IOC):$(NAME)-TOGGLE-RESET-CNT-AUTO")
+{
+	field(DESC, "")
+	field(OUT, "$(IOC):$(NAME)-SET-RESET-CNT-MODE.B3")
+	field(FLNK, "$(IOC):$(NAME)-SET-RESET-CNT-MODE")
+}
+################################################################################
+# Write. RESET
+################################################################################
+record(mbbo, "$(IOC):$(NAME)-RESET")
+{
+	field(DESC, "Set alarm reset mode")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeCharreset(73,08,$(NODE)) $(PORT)")
+	field(ZRST, "NO RESET")
+	field(ONST, "Counter")
+	field(TWST, "Alarm")
+	field(THST, "Limit counter")
+	field(FRST, "Counter reset & OFF")
+	field(FVST, "Module")
+	field(SXST, "Alarm info error")
+	field(SVST, "Alarm info warning")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-MODE")
+	field(PINI, "YES")
+
+}
+
+################################################################################
+################################################################################
+#FLOAT PARAMETERS
+################################################################################
+################################################################################
+################################################################################
+# Read; Counter value
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-CNT")
+{
+	field(DESC, "Read counter")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-CNT_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-CNT__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-CNT")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-CNT__")
+{
+	field(DESC, "Read counter as long")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(68,41,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN2)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-CNT")
+{
+	field(DESC, "Set counter")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT_")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-CNT_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-CNT")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-CNT__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-CNT__")
+{
+	field(DESC, "Set counter as long")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(68,41,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT__")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-CNT-INIT_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-CNT__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-SET-CNT")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT")
+}
+
+
+################################################################################
+# Read/write; Float measure
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-FMEA")
+{
+	field(DESC, "Read Float measure")
+	field(PREC, "3")
+	field(EGU, "$(UNIT)")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-FMEA_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-FMEA__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-FMEA")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-FMEA")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-FMEA__")
+{
+	field(DESC, "Read measure as long")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(21,40,$(NODE)) $(PORT)")
+	field(SCAN, "$(SCAN2)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-FMEA_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-FMEA")
+{
+	field(DESC, "Set measure")
+	field(EGU, "$(UNIT)")
+	field(FLNK, "$(IOC):$(NAME)-SET-FMEA_")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-FMEA_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-FMEA")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-FMEA__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-FMEA__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-FMEA__")
+{
+	field(DESC, "Set measure as long")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(21,43,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-FMEA__")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-FMEA-INIT_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-FMEA__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-SET-FMEA")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-FMEA")
+}
+
+
+
+################################################################################
+# Read; Counter limit
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-CNT-LIM")
+{
+	field(DESC, "Read counter limit")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-CNT-LIM_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-CNT-LIM__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-CNT-LIM")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-LIM")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-CNT-LIM__")
+{
+	field(DESC, "Read counter limit as long")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(68,43,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-LIM_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-CNT-LIM")
+{
+	field(DESC, "Set counter limit")
+	field(PREC, "3")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT-LIM_")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-CNT-LIM_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-CNT-LIM")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-CNT-LIM__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT-LIM__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-CNT-LIM__")
+{
+	field(DESC, "Set counter limit as INPlong")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(68,43,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-CNT-LIM__")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-CNT-LIM-INIT_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-CNT-LIM__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-SET-CNT-LIM")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-SET-CNT-LIM")
+}
+
+################################################################################
+# Read/write PID parameters
+################################################################################
+record(ai, "$(IOC):$(NAME)-GET-P")
+{
+	field(DESC, "Read P")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-P_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-P__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-P")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-P")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-P__")
+{
+	field(DESC, "Read P as long")
+	field(SCAN, "Passive")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(72,55,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-P_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-P")
+{
+	field(DESC, "Set P")
+	field(PREC, "3")
+	field(FLNK, "$(IOC):$(NAME)-SET-P_")
+	field(PINI, "YES")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-P_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-P")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-P__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-P__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-P__")
+{
+	field(DESC, "Set P as INPlong")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(72,55,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-P__")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-I")
+{
+	field(DESC, "Read I")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-I_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-I__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-I")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-I")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-I__")
+{
+	field(DESC, "Read I as long")
+	field(SCAN, "Passive")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(72,56,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-I_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-I")
+{
+	field(DESC, "Set I")
+	field(PREC, "3")
+	field(FLNK, "$(IOC):$(NAME)-SET-I_")
+	field(PINI, "YES")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-I_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-I")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-I__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-I__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-I__")
+{
+	field(DESC, "Set I as INPlong")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(72,56,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-I__")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-D")
+{
+	field(DESC, "Read D")
+	field(PREC, "3")
+}
+
+record(aSub, "$(IOC):$(NAME)-GET-D_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-GET-D__")
+	field(FTA, "LONG")
+	field(OUTA, "$(IOC):$(NAME)-GET-D")
+	field(FTVA, "FLOAT")
+	field(SNAM, "readFloat")
+	field(FLNK, "$(IOC):$(NAME)-GET-D")
+}
+
+record(ai, "$(IOC):$(NAME)-GET-D__")
+{
+	field(DESC, "Read D as long")
+	field(SCAN, "Passive")
+	field(DTYP, "stream")
+	field(INP, "@devBronkhorst.proto readFloat(72,57,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-D_")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-D")
+{
+	field(DESC, "Set D")
+	field(PREC, "3")
+	field(FLNK, "$(IOC):$(NAME)-SET-D_")
+}
+
+record(aSub, "$(IOC):$(NAME)-SET-D_")
+{
+	field(DESC, "Interpret long as float")
+	field(INPA, "$(IOC):$(NAME)-SET-D")
+	field(FTA, "FLOAT")
+	field(OUTA, "$(IOC):$(NAME)-SET-D__")
+	field(FTVA, "LONG")
+	field(SNAM, "writeFloat")
+	field(FLNK, "$(IOC):$(NAME)-SET-D__")
+	field(PINI, "YES")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-D__")
+{
+	field(DESC, "Set D as INPlong")
+	field(DTYP, "stream")
+	field(OUT, "@devBronkhorst.proto writeFloat(72,57,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-D__")
+}
+################################################################################
+################################################################################
+#STATUS PARAMETERS
+################################################################################
+################################################################################
+################################################################################
+# Read:Number of error messages. 0 - no error message, 1 - at least 1 error
+# message
+################################################################################
+record(bi, "$(IOC):$(NAME)-ERROR-MSG-NUM")
+{
+	field(DESC, "Number of error mesgs")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B0")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "No error")
+	field(ONAM, "Error")
+	field(FLNK, "$(IOC):$(NAME)-WARNING-MSG-NUM")
+}
+
+################################################################################
+# Read:Number of warning messages. 0 - no warning message, 1 - at least 1 
+# warning message
+################################################################################
+record(bi, "$(IOC):$(NAME)-WARNING-MSG-NUM")
+{
+	field(DESC, "Number of warning msgs")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B1")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "No warning")
+	field(ONAM, "Warning")
+	field(FLNK, "$(IOC):$(NAME)-MIN-ALARM")
+}
+
+################################################################################
+# Read:Number of minimum alarm messages for measured signal. 
+# 0 - no minimum alarm message, 
+# 1 - at least 1 minumum alarm message
+################################################################################
+record(bi, "$(IOC):$(NAME)-MIN-ALARM")
+{
+	field(DESC, "Number of min alarm msgs")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B2")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "No min alarm")
+	field(ONAM, "Min alarm")
+	field(FLNK, "$(IOC):$(NAME)-MAX-ALARM")
+}
+
+################################################################################
+# Read:Number of maximum alarm messages for measured signal. 
+# 0 - no maximum alarm message, 
+# 1 - at least 1 maximum alarm message
+################################################################################
+record(bi, "$(IOC):$(NAME)-MAX-ALARM")
+{
+	field(DESC, "Number of max alar msgs")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B3")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "No max alarm")
+	field(ONAM, "Max alarm")
+	field(FLNK, "$(IOC):$(NAME)-BATCH-CNT-ALARM")
+}
+
+################################################################################
+# Read: 0 - Batch counter has not reached it's limit
+#       1 - Batch counter has reached it's limit
+################################################################################
+record(bi, "$(IOC):$(NAME)-BATCH-CNT-ALARM")
+{
+	field(DESC, "Batch counter alarm")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B4")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "OK")
+	field(ONAM, "Limit")
+	field(FLNK, "$(IOC):$(NAME)-RESPONSE-ALARM")
+}
+
+################################################################################
+# Read: 0 - Response OK (setpoint-measure within limit)
+#       1 - Response alarm message: setpoint-measure is too high
+################################################################################
+record(bi, "$(IOC):$(NAME)-RESPONSE-ALARM")
+{
+	field(DESC, "Response alarm")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B5")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "OK")
+	field(ONAM, "SP to high")
+	field(FLNK, "$(IOC):$(NAME)-MASTER-OUT-ALARM")
+}
+
+################################################################################
+# Read: 0 - Master output signal OK (or unused)
+#       1 - Master output signal not received: check master instrument
+################################################################################
+record(bi, "$(IOC):$(NAME)-MASTER-OUT-ALARM")
+{
+	field(DESC, "Master output alarm")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B6")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "OK")
+	field(ONAM, "Not received")
+	field(FLNK, "$(IOC):$(NAME)-HARDWARE-ALARM")
+}
+
+################################################################################
+# Read: 0 - Hardware OK
+#       1 - Hardware error message: check your hardware
+################################################################################
+record(bi, "$(IOC):$(NAME)-HARDWARE-ALARM")
+{
+	field(DESC, "Response alarm")
+	field(INP, "$(IOC):$(NAME)-GET-ALARM-INFO.B7")
+	field(SCAN, "$(SCAN1)")
+	field(ZNAM, "OK")
+	field(ONAM, "Error")
+}
+
+
+################################################################################
+# Read: Check if communication is OK
+################################################################################
+record(calc, "$(IOC):$(NAME)-COMM-STATUS")
+{
+	field(DESC, "Communication status")
+	field(INPA, "$(IOC):$(NAME)-GET-MEASURE_.STAT")
+	field(CALC, "A>0")
+	field(FLNK, "$(IOC):$(NAME)-ALARM")
+}
+
+################################################################################
+# Read; Sum of communication and device errors. If either device or comm. is in
+# error, value is 1. LED on the main screen uses this to determine if everything
+# is ok.
+################################################################################
+record(calc, "$(IOC):$(NAME)-ALARM")
+{
+	field(DESC, "Communication status")
+	field(INPA, "$(IOC):$(NAME)-COMM-STATUS")
+	field(INPB, "$(IOC):$(NAME)-GET-ALARM-INFO.B0")
+	field(INPC, "$(IOC):$(NAME)-GET-ALARM-INFO.B1")
+	field(INPD, "$(IOC):$(NAME)-GET-ALARM-INFO.B2")
+	field(INPE, "$(IOC):$(NAME)-GET-ALARM-INFO.B3")
+	field(INPF, "$(IOC):$(NAME)-GET-ALARM-INFO.B5")
+	field(INPG, "$(IOC):$(NAME)-GET-ALARM-INFO.B6")
+	field(INPH, "$(IOC):$(NAME)-GET-ALARM-INFO.B7")
+	field(CALC, "(A+B+C+D+E+F+G+H)>0")
+}
+
+################################################################################
+# Lock/unlock secured parameters, e.g. PID parameters
+################################################################################
+
+record(ai, "$(IOC):$(NAME)-GET-INITRESET__")
+{
+	field(DESC, "Get locked/unlocked")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(INP, "@devBronkhorst.proto readChar(00,0A,$(NODE)) $(PORT)")
+	field(PINI, "YES")
+	field(FLNK, "$(IOC):$(NAME)-GET-INITRESET_")
+}
+
+record(calcout, "$(IOC):$(NAME)-GET-INITRESET_"){
+	field(CALC, "(A=82)?0:(A=64)?1:2")
+	field(INPA, "$(IOC):$(NAME)-GET-INITRESET__")
+	field(OUT, "$(IOC):$(NAME)-GET-INITRESET")
+	field(FLNK, "$(IOC):$(NAME)-GET-INITRESET")
+}
+
+record(mbbo, "$(IOC):$(NAME)-GET-INITRESET")
+{	
+	field(DESC, "Locked/unlocked")	
+	field(ZRVL, "0")
+	field(ZRST, "Lock")
+	field(ONVL, "1")
+	field(ONST, "Unlock")
+	field(TWVL, "2")
+	field(TWST, "Unknown")
+}
+
+record(mbbo, "$(IOC):$(NAME)-SET-INITRESET")
+{
+	field(DESC, "Lock/unlock")
+	field(ZRVL, "0")
+	field(ZRST, "Lock")
+	field(ONVL, "1")
+	field(ONST, "Unlock")
+	field(OUT, "$(IOC):$(NAME)-SET-INITRESET_")
+	field(FLNK, "$(IOC):$(NAME)-SET-INITRESET_")
+	field(PINI, "YES")
+}
+
+record(calcout, "$(IOC):$(NAME)-SET-INITRESET_"){
+	field(CALC, "(A=1)?64:82")
+	field(INPA, "$(IOC):$(NAME)-SET-INITRESET")
+	field(OUT, "$(IOC):$(NAME)-SET-INITRESET__")
+	field(FLNK, "$(IOC):$(NAME)-SET-INITRESET__")
+}
+
+record(ao, "$(IOC):$(NAME)-SET-INITRESET__")
+{
+	field(DESC, "Send Lock/unlock")
+	field(DTYP, "stream")
+	field(SCAN, "$(SCAN1)")
+	field(OUT, "@devBronkhorst.proto writeChar(00,0A,$(NODE)) $(PORT)")
+	field(FLNK, "$(IOC):$(NAME)-GET-INITRESET__")
+}
+

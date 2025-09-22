@@ -1,0 +1,21 @@
+# ai record template for register inputs
+record(ai, "$(X)$(Y)") {
+    field(DTYP ,"asynFloat64")
+    field(INP  ,"@asyn($(PORT) $(OFFSET))$(DATA_TYPE)")
+    field(HOPR ,"$(HOPR=0)")
+    field(LOPR ,"$(LOPR=0)")
+    field(PREC ,"$(PREC=0)")
+    field(SCAN ,"$(SCAN=I/O Intr)")
+	field(HIHI ,"$(HIHI=99999.9)")
+	field(HIGH ,"$(HIGH=99999.9)")
+	field(LOW  ,"$(LOW=-1)")
+	field(LOLO ,"$(LOLO=-2)")
+	field(HHSV ,"$(HHSV=NO_ALARM)")
+	field(HSV  ,"$(HSV=NO_ALARM)")
+	field(LSV  ,"$(LSV=NO_ALARM)")
+	field(LLSV ,"$(LLSV=NO_ALARM)")
+	field(HYST ,"$(HYST=0)")
+	field(AFTC ,"$(AFTC=1)")
+	field(LALM ,"$(LALM=1)")
+}
+

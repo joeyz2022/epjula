@@ -1,0 +1,29 @@
+reaktor_registerRecordDeviceDriver.o: \
+ reaktor_registerRecordDeviceDriver.cpp \
+ /home/epics/EPICS/base-7.0/include/compilerDependencies.h \
+ /home/epics/EPICS/base-7.0/include/compiler/gcc/compilerSpecific.h \
+ /home/epics/EPICS/base-7.0/include/epicsStdlib.h \
+ /home/epics/EPICS/base-7.0/include/libComAPI.h \
+ /home/epics/EPICS/base-7.0/include/os/Linux/osdStrtod.h \
+ /home/epics/EPICS/base-7.0/include/epicsTypes.h \
+ /home/epics/EPICS/base-7.0/include/compilerDependencies.h \
+ /home/epics/EPICS/base-7.0/include/errMdef.h \
+ /home/epics/EPICS/base-7.0/include/iocsh.h \
+ /home/epics/EPICS/base-7.0/include/iocshRegisterCommon.h \
+ /home/epics/EPICS/base-7.0/include/dbCoreAPI.h \
+ /home/epics/EPICS/base-7.0/include/registryCommon.h \
+ /home/epics/EPICS/base-7.0/include/dbStaticLib.h \
+ /home/epics/EPICS/base-7.0/include/dbFldTypes.h \
+ /home/epics/EPICS/base-7.0/include/dbBase.h \
+ /home/epics/EPICS/base-7.0/include/ellLib.h \
+ /home/epics/EPICS/base-7.0/include/dbDefs.h \
+ /home/epics/EPICS/base-7.0/include/recSup.h \
+ /home/epics/EPICS/base-7.0/include/devSup.h \
+ /home/epics/EPICS/base-7.0/include/drvSup.h \
+ /home/epics/EPICS/base-7.0/include/link.h \
+ /home/epics/EPICS/base-7.0/include/cantProceed.h \
+ /home/epics/EPICS/base-7.0/include/dbJLink.h \
+ /home/epics/EPICS/base-7.0/include/dbCoreAPI.h \
+ /home/epics/EPICS/base-7.0/include/registryRecordType.h \
+ /home/epics/EPICS/base-7.0/include/recSup.h \
+ /home/epics/EPICS/base-7.0/include/shareLib.h
